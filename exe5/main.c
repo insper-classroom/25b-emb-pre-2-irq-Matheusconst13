@@ -45,6 +45,7 @@ int main() {
             uint32_t duracao = tempo_saida - tempo_entrada; 
 
             if (duracao > 800000) { 
+                
                 printf("Aperto longo!\n");
             } else {
                 printf("Aperto curto!\n");
