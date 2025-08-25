@@ -2,20 +2,17 @@
 #include "hardware/gpio.h"
 #include "pico/stdlib.h"
 
-volatile int flag_entrada = 0;
 volatile int flag_saida = 0;
 const int BTN_PIN = 28;
 
-uint32_t tempo_entrada = 0;
-uint32_t tempo_saida = 0;
+volatile  uint64_t tempo_entrada = 0;
+volatile int tempo_saida = 0;
 
 void btn_callback(uint gpio, uint32_t events) {
     if (gpio == BTN_PIN) {
         if (events == GPIO_IRQ_EDGE_FALL) { 
-            tempo_entrada = time_us_32();  
-            flag_entrada = 1;
-        } else if (events == GPIO_IRQ_EDGE_RISE) {
-            tempo_saida = time_us_32();  
+            tempo_entrada = time_us_64();  
+        }if (events == GPIO_IRQ_EDGE_RISE) {
             flag_saida = 1;
         }
     }
@@ -32,19 +29,14 @@ int main() {
         BTN_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &btn_callback);
 
     while (true) {
-        if (flag_entrada) {
-            flag_entrada = 0;
-            while (!flag_saida) {} 
-
-            flag_saida = 0;
-
-            uint32_t duracao = tempo_saida - tempo_entrada;
-
-            if (duracao > 800000) { 
+        if (flag_saida) {
+            uint64_t duracao = (time_us_64()- tempo_entrada)/1000;
+            if (duracao >= 800) { 
                 printf("Aperto longo!\n");
             } else {
                 printf("Aperto curto!\n");
             }
+            flag_saida = 0;
         }
     }
 }
