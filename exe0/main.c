@@ -8,7 +8,7 @@
 
 const int BTN_PIN_R = 28;
 
-int btn_flag;
+volatile int btn_flag = 0;
 
 void btn_callback(uint gpio, uint32_t events) {
   if (events == 0x4) { // fall edge
@@ -25,8 +25,7 @@ int main() {
                                      &btn_callback);
 
   while (1) {
-    if (btn_flag)
-    {
+    if (btn_flag){
       btn_flag = 0;
       printf("btn pressed \n");
     }
